@@ -1,3 +1,17 @@
+// Initialize Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyBVEMqQEwLmpzCwGQdQOfuc1CLceg7TX4M",
+    authDomain: "herman-e5894.firebaseapp.com",
+    databaseURL: "https://herman-e5894-default-rtdb.firebaseio.com",
+    projectId: "herman-e5894",
+    storageBucket: "herman-e5894.appspot.com",
+    messagingSenderId: "17968105226",
+    appId: "1:17968105226:web:d7c2852d574327495a1cf3"
+};
+
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+
 // Track quiz start time
 const startTime = Date.now();
 
@@ -38,7 +52,28 @@ document.getElementById("quizForm").addEventListener("submit", function(event) {
     let grade = percentage >= 80 ? "A" : percentage >= 70 ? "B" : percentage >= 60 ? "C" : percentage >= 50 ? "D" : "F";
     let comment = grade === "A" ? "Excellent!" : grade === "B" ? "Good Job!" : grade === "C" ? "Fair Effort" : grade === "D" ? "Needs Improvement" : "Better luck next time!";
 
-    // Display results
+    // Save to Firebase
+    const studentAnswers = {
+        name: studentName,
+        score: score,
+        percentage: percentage,
+        grade: grade,
+        comment: comment,
+        timeSpent: timeSpent,
+        answers: answers,
+        timestamp: new Date().toISOString()
+    };
+
+    // Save the quiz result to Firebase database
+    database.ref("quizResults").push(studentAnswers)
+        .then(() => {
+            alert("Quiz submitted successfully!");
+        })
+        .catch((error) => {
+            console.error("Error saving to database:", error);
+        });
+
+    // Display results to the student
     let resultHTML = `
         <p><strong>Name:</strong> ${studentName}</p>
         <p><strong>Score:</strong> ${score}/${totalQuestions} (${percentage.toFixed(2)}%)</p>
